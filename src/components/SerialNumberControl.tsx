@@ -1,4 +1,4 @@
-import { CardSize, CardTextPosition, Position } from "@/pages";
+import { CardSize, CardTextPosition } from "@/pages";
 import { Dispatch, SetStateAction } from "react";
 import { RangePosition } from "./Range";
 
