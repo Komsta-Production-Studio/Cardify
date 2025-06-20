@@ -20,7 +20,7 @@ function BaseRange({ label, value, min, max, onChange }: BaseRangeProps) {
           max={max}
           value={value}
           onChange={(e) => {
-            const newValue = parseInt(e.target.value);
+            const newValue = parseFloat(e.target.value);
             if (!isNaN(newValue)) {
               onChange(newValue);
             }
@@ -31,7 +31,7 @@ function BaseRange({ label, value, min, max, onChange }: BaseRangeProps) {
           type="number"
           value={value}
           onChange={(e) => {
-            const newValue = parseInt(e.target.value);
+            const newValue = parseFloat(e.target.value);
             if (!isNaN(newValue)) {
               onChange(newValue);
             }

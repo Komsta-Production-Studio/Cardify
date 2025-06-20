@@ -27,12 +27,24 @@ body {
 
 .control-panel {
   transform-origin: right top;
-  transform: scale(0.7);
+  transform: scale(0.85);
 }
+
+.style-editor {
+  transform-origin: left top;
+  transform: scale(0.85);
+}
+/* TESTING PRINT */
+
 
 @media print {
   body * {
     visibility: hidden;
+  }
+
+  .wrapper {
+    margin: 0;
+    padding: 0;
   }
 
   .container {
@@ -41,6 +53,14 @@ body {
   }
 
   .control-panel {
+    display: none;
+  }
+
+  .style-editor {
+    display: none;
+  }
+
+  .help-text {
     display: none;
   }
 
@@ -65,10 +85,17 @@ body {
     top: 0;
     margin: 0;
     padding: 0;
+    box-shadow: 0 0 0 0 !important;
     /* outline: #171717 solid 4px !important; */
   }
 
   .card-wrapper {
     position: absolute;
   }
+
+  /* Set page size */
+  /* @page {
+    size: A4;
+    margin: 0;
+  } */
 }

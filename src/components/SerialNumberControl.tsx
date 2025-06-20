@@ -1,6 +1,7 @@
-import { CardSize, CardTextPosition } from "@/pages";
+import { CardSize, CardTextPosition, TextFieldName, TextStyles } from "@/pages";
 import { Dispatch, SetStateAction } from "react";
 import { RangePosition } from "./Range";
+import TextStyleFieldGroup from "./TextStyleFieldGroup";
 
 interface SerialNumberControlProps {
   useSerialNumber: boolean;
@@ -19,6 +20,8 @@ interface SerialNumberControlProps {
   setSerialPosition: Dispatch<SetStateAction<CardTextPosition>>;
   cardSize: CardSize;
   cardCount: number;
+  textStyles: TextStyles;
+  handleStyleChange: (field: TextFieldName, property: string, value: string) => void;
 }
 
 export default function SerialNumberControl({
@@ -38,6 +41,8 @@ export default function SerialNumberControl({
   setSerialPosition,
   cardSize,
   cardCount,
+  textStyles,
+  handleStyleChange,
 }: SerialNumberControlProps) {
   return (
     <div className="mb-4 p-3 border rounded">
@@ -127,11 +132,18 @@ export default function SerialNumberControl({
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <RangePosition 
+            <RangePosition
               positions={serialPosition}
               setPositions={setSerialPosition}
               field="serial"
               cardSize={cardSize}
+            />
+          </div>
+          <div className="grid grid-cols gap-2">
+            <TextStyleFieldGroup
+              field={"serial"}
+              textStyles={textStyles}
+              handleStyleChange={handleStyleChange}
             />
           </div>
         </>

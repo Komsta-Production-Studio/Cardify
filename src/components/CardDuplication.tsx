@@ -22,7 +22,7 @@ export default function CardDuplication({
 {
   const { maxRows, maxCols } = limitRows;
   return (
-    <div className="mb-4 border-t pt-4 mt-4">
+    <div className="mb-4">
       <h3 className="font-semibold mb-2">Card Duplication</h3>
 
       <div className="grid grid-cols-2 gap-4">

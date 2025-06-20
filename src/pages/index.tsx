@@ -6,10 +6,13 @@ import BorderControl from "@/components/BorderControl";
 import CardDuplication from "@/components/CardDuplication";
 import CardSize from "@/components/CardSize";
 import BackgroundImage from "@/components/BackgroundImage";
-import TextStyleField from "@/components/TextStyleField";
+import TextFieldStyleEditor from "@/components/TextFieldStyleEditor";
 import ShowPaperOutline from "@/components/ShowPaperOutline";
 import SerialNumberControl from "@/components/SerialNumberControl";
+import FileOperations from "@/components/FileOperation";
+import Head from "next/head";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const comicSans = localFont({
   src: "../../public/ComicSansMS.ttf",
   variable: "--font-comic-sans",
@@ -50,7 +53,7 @@ export interface Position {
   y: number;
 }
 
-export type TextFieldName = 'title' | 'subtitle' | 'message' | 'footer';
+export type TextFieldName = 'title' | 'subtitle' | 'message' | 'footer' | 'serial';
 
 export type PositionTextFieldName = "title" | "subtitle" | "message" | "footer" | "serial";
 
@@ -77,6 +80,7 @@ export default function Home() {
     subtitle: "Subtitle here",
     message: "Write your message here...",
     footer: "Footer text",
+    serial: "Serial Number",
   });
 
   const [border, setBorder] = useState<Border>({
@@ -91,7 +95,7 @@ export default function Home() {
       fontSize: "24px",
       color: "#000000",
       fontWeight: "bold",
-      fontFamily: comicSans.className as FontFamily,
+      fontFamily: "Arial",
     },
     subtitle: {
       fontSize: "18px",
@@ -108,6 +112,12 @@ export default function Home() {
     footer: {
       fontSize: "12px",
       color: "#888888",
+      fontWeight: "normal",
+      fontFamily: "Arial",
+    },
+    serial: {
+      fontSize: "12px",
+      color: "#000000",
       fontWeight: "normal",
       fontFamily: "Arial",
     },
@@ -150,10 +160,6 @@ export default function Home() {
    const [serialPrefix, setSerialPrefix] = useState<string>("");
    const [serialSuffix, setSerialSuffix] = useState<string>("");
    const [serialDigits, setSerialDigits] = useState<number>(3);
-  //  const [serialPosition, setSerialPosition] = useState<Position>({
-  //    x: 20,
-  //    y: 270,
-  //  });
 
    const renderCardDuplicates = () => {
      const cards = [];
@@ -197,7 +203,9 @@ export default function Home() {
                borderRadius: `${border.radius}px`,
              }}
            >
-             {(Object.keys(cardText) as TextFieldName[]).map((field) => (
+             {(Object.keys(cardText) as TextFieldName[]).map((field) => {
+              if (field === "serial") return;
+              return (
                <div
                  key={field}
                  className="absolute pointer-events-none"
@@ -209,7 +217,7 @@ export default function Home() {
                >
                  {cardText[field]}
                </div>
-             ))}
+             )})}
              {/* Serial number if enabled */}
              {useSerialNumber && (
                <div
@@ -217,10 +225,10 @@ export default function Home() {
                  style={{
                    left: `${positions["serial"].x}px`,
                    top: `${positions["serial"].y}px`,
-                   fontSize: "12px",
-                   color: "#000000",
-                   fontWeight: "normal",
-                   fontFamily: "Arial",
+                   fontSize: textStyles["serial"].fontSize,
+                   color: textStyles["serial"].color,
+                   fontWeight: textStyles["serial"].fontWeight,
+                   fontFamily: textStyles["serial"].fontFamily,
                  }}
                >
                  {serialNumber}
@@ -317,60 +325,9 @@ export default function Home() {
   }
 
   const printCard = () => {
-    // window.print();
-    // Add a small delay to ensure styles are applied before printing
-    // setTimeout(() => {
-    //   window.print();
-    // }, 1000);
-
-    // If there's a background image, temporarily add it as a real image for printing
-    // if (bgImage && cardRef.current) {
-    //   const tempImg = document.createElement("img");
-    //   tempImg.src = bgImage;
-    //   tempImg.className =
-    //     "absolute top-0 left-0 w-full h-full object-cover print-bg-image";
-    //   tempImg.style.zIndex = "0";
-    //   cardRef.current.appendChild(tempImg);
-
-    //   setTimeout(() => {
-    //     window.print();
-    //     // Remove the temp image after printing
-    //     if (cardRef.current && tempImg.parentNode === cardRef.current) {
-    //       cardRef.current.removeChild(tempImg);
-    //     }
-    //   }, 100);
-    // } else {
-    //   window.print();
-    // }
-
     if (bgImage && cardRef.current) {
-      // const cardWidth = cardRef.current.offsetWidth;
-      // const cardHeight = cardRef.current.offsetHeight;
-      // const aspectRatio = cardWidth / cardHeight;
-
-      // const tempImg = document.createElement("img");
-      // tempImg.src = bgImage;
-      // tempImg.className = "absolute top-0 left-0 print-bg-image";
-      // tempImg.style.width = `${cardWidth}px`;
-      // tempImg.style.height = `${cardHeight}px`;
-      // tempImg.style.zIndex = "-1";
-      // cardRef.current.appendChild(tempImg);
-
-      // Create a print wrapper to center the card on the page
-      // const printWrapper = document.createElement("div");
-      // printWrapper.className = "print-wrapper";
-      // document.body.appendChild(printWrapper);
-
       setTimeout(() => {
         window.print();
-
-        // Clean up
-        // if (cardRef.current && tempImg.parentNode === cardRef.current) {
-        //   cardRef.current.removeChild(tempImg);
-        // }
-        // if (printWrapper.parentNode) {
-        //   document.body.removeChild(printWrapper);
-        // }
       }, 100);
     } else {
       window.print();
@@ -379,79 +336,159 @@ export default function Home() {
 
   return (
     <div className={`min-h-screen`}>
+      <Head>
+        <title>Card Designer</title>
+        <meta name="author" content="Joel Olofsson" />
+        <meta name="publisher" content="Joel Olofsson" />
+        <meta name="copyright" content="Joel Olofsson" />
+        <meta
+          name="description"
+          content="Cardify is a versatile web-based card design tool that allows you to create and print custom cards directly from your browser. Perfect for business cards, invitation cards, membership cards, ID badges, gift cards, and more."
+        />
+      </Head>
       {/* <div className="container w-full mx-auto p-4"> */}
-      <div className="container w-full mx-auto p-4">
+      <div className="w-full mx-auto p-4 wrapper">
         <div className=" flex flex-col md:flex-row gap-6">
-          <div className="w-full md:w-1/3 bg-white p-4 rounded shadow control-panel">
-            <h2 className="text-xl font-semibold mb-4">Edit controls</h2>
+          {/* <div className="w-full md:w-1/3 p-4 rounded shadow control-panel"> */}
+          <div className="grid grid-cols-2 w-1/3 control-panel gap-2 auto-rows-min auto-cols-min">
+            {/* <h2 className="text-xl font-semibold mb-4">Edit controls</h2> */}
 
-            <CardDuplication
-              cardRows={cardRows}
-              cardCols={cardCols}
-              limitRows={{ maxRows: maxRows, maxCols: maxCols }}
-              setCardRows={setCardRows}
-              setCardCols={setCardCols}
-            />
-            <div className="flex flex-1 flex-row gap-4 mb-4">
-              <BorderControl
-                className="flex-1"
-                border={border}
-                handleBorderChange={handleBorderChange}
-              />
-              <CardSize
-                className="flex-1"
-                cardSize={cardSize}
-                setCardSize={setCardSize}
+            <div className="mb-4 p-4 bg-gray-50 rounded shadow shrink">
+              <CardDuplication
+                cardRows={cardRows}
+                cardCols={cardCols}
+                limitRows={{ maxRows: maxRows, maxCols: maxCols }}
+                setCardRows={setCardRows}
+                setCardCols={setCardCols}
               />
             </div>
 
-            <BackgroundImage handleBgImageChange={handleBgImageChange} />
+            <div className="mb-4 p-4 bg-gray-50 rounded shadow shrink">
+              <BackgroundImage handleBgImageChange={handleBgImageChange} />
+            </div>
 
-            {(Object.keys(cardText) as TextFieldName[]).map((field) => (
-              <TextStyleField
-                key={field}
-                field={field}
-                cardText={cardText}
+            <div className="mb-4 p-4 bg-gray-50 rounded shadow col-span-2">
+              <h3 className="text-lg font-medium mb-2">Card Size & Border</h3>
+              <div className="flex flex-1 flex-row gap-4">
+                <BorderControl
+                  className="flex-1"
+                  border={border}
+                  handleBorderChange={handleBorderChange}
+                />
+                <CardSize
+                  className="flex-1"
+                  cardSize={cardSize}
+                  setCardSize={setCardSize}
+                />
+              </div>
+            </div>
+
+            {/* <div className="mb-4 p-4 bg-gray-50 rounded shadow row-span-3">
+              <h3 className="text-lg font-medium mb-2">Text Fields</h3>
+              {(Object.keys(cardText) as TextFieldName[]).map((field) => {
+                if (field === "serial") return;
+                return (
+                  <TextFieldStyleEditor
+                    key={field}
+                    field={field}
+                    cardText={cardText}
+                    textStyles={textStyles}
+                    handleTextChange={handleTextChange}
+                    handleStyleChange={handleStyleChange}
+                    positions={positions}
+                    setPositions={setPositions}
+                    cardSize={cardSize}
+                  />
+                );
+              })}
+            </div> */}
+
+            <div className="mb-4 p-4 bg-gray-50 rounded shadow col-span-2 shrink">
+              <SerialNumberControl
+                useSerialNumber={useSerialNumber}
+                setUseSerialNumber={setUseSerialNumber}
+                serialStart={serialStart}
+                setSerialStart={setSerialStart}
+                serialEnd={serialEnd}
+                setSerialEnd={setSerialEnd}
+                serialPrefix={serialPrefix}
+                setSerialPrefix={setSerialPrefix}
+                serialSuffix={serialSuffix}
+                setSerialSuffix={setSerialSuffix}
+                serialDigits={serialDigits}
+                setSerialDigits={setSerialDigits}
+                serialPosition={positions}
+                setSerialPosition={setPositions}
+                cardSize={cardSize}
+                cardCount={cardRows * cardCols}
                 textStyles={textStyles}
-                handleTextChange={handleTextChange}
                 handleStyleChange={handleStyleChange}
+              />
+            </div>
+
+            <div className="p-4 bg-gray-50 rounded shadow">
+              <h3 className="text-lg font-medium mb-2">Paper Outline</h3>
+              <ShowPaperOutline
+                showA4Outline={showA4Outline}
+                setShowA4Outline={setShowA4Outline}
+              />
+            </div>
+
+            <div className="p-4 bg-gray-50 rounded shadow">
+              <FileOperations
+                cardRows={cardRows}
+                setCardRows={setCardRows}
+                cardCols={cardCols}
+                setCardCols={setCardCols}
+                showA4Outline={showA4Outline}
+                setShowA4Outline={setShowA4Outline}
+                cardText={cardText}
+                setCardText={setCardText}
+                border={border}
+                setBorder={setBorder}
+                textStyles={textStyles}
+                setTextStyles={setTextStyles}
+                cardSize={cardSize}
+                setCardSize={setCardSize}
+                bgImage={bgImage}
+                setBgImage={setBgImage}
                 positions={positions}
                 setPositions={setPositions}
-                cardSize={cardSize}
+                useSerialNumber={useSerialNumber}
+                setUseSerialNumber={setUseSerialNumber}
+                serialStart={serialStart}
+                setSerialStart={setSerialStart}
+                serialEnd={serialEnd}
+                setSerialEnd={setSerialEnd}
+                serialPrefix={serialPrefix}
+                setSerialPrefix={setSerialPrefix}
+                serialSuffix={serialSuffix}
+                setSerialSuffix={setSerialSuffix}
+                serialDigits={serialDigits}
+                setSerialDigits={setSerialDigits}
+                printCard={printCard}
               />
-            ))}
-
-            <SerialNumberControl
-              useSerialNumber={useSerialNumber}
-              setUseSerialNumber={setUseSerialNumber}
-              serialStart={serialStart}
-              setSerialStart={setSerialStart}
-              serialEnd={serialEnd}
-              setSerialEnd={setSerialEnd}
-              serialPrefix={serialPrefix}
-              setSerialPrefix={setSerialPrefix}
-              serialSuffix={serialSuffix}
-              setSerialSuffix={setSerialSuffix}
-              serialDigits={serialDigits}
-              setSerialDigits={setSerialDigits}
-              serialPosition={positions}
-              setSerialPosition={setPositions}
-              cardSize={cardSize}
-              cardCount={cardRows * cardCols}
-            />
-
-            <ShowPaperOutline
-              showA4Outline={showA4Outline}
-              setShowA4Outline={setShowA4Outline}
-            />
-
-            <button
-              onClick={printCard}
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-            >
-              Print Card{cardRows * cardCols > 1 ? "s" : ""}
-            </button>
+            </div>
           </div>
+          {/* <div className="mb-4 p-4 bg-gray-50 rounded shadow row-span-3 style-editor">
+            <h3 className="text-lg font-medium mb-2">Text Fields</h3>
+            {(Object.keys(cardText) as TextFieldName[]).map((field) => {
+              if (field === "serial") return;
+              return (
+                <TextFieldStyleEditor
+                  key={field}
+                  field={field}
+                  cardText={cardText}
+                  textStyles={textStyles}
+                  handleTextChange={handleTextChange}
+                  handleStyleChange={handleStyleChange}
+                  positions={positions}
+                  setPositions={setPositions}
+                  cardSize={cardSize}
+                />
+              );
+            })}
+          </div> */}
 
           <div
             className="flex flex-wrap flex-row place-content-start card-wrapper"
@@ -492,21 +529,24 @@ export default function Home() {
               onDragOver={handleDragOver}
               onDrop={handleDrop}
             >
-              {(Object.keys(cardText) as TextFieldName[]).map((field) => (
-                <div
-                  key={field}
-                  className="absolute cursor-move"
-                  style={{
-                    left: `${positions[field].x}px`,
-                    top: `${positions[field].y}px`,
-                    ...textStyles[field],
-                  }}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, field)}
-                >
-                  {cardText[field]}
-                </div>
-              ))}
+              {(Object.keys(cardText) as TextFieldName[]).map((field) => {
+                if (field === "serial") return;
+                return (
+                  <div
+                    key={field}
+                    className="absolute cursor-move"
+                    style={{
+                      left: `${positions[field].x}px`,
+                      top: `${positions[field].y}px`,
+                      ...textStyles[field],
+                    }}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, field)}
+                  >
+                    {cardText[field]}
+                  </div>
+                );
+              })}
               {/* Serial number if enabled */}
               {useSerialNumber && (
                 <div
@@ -514,10 +554,10 @@ export default function Home() {
                   style={{
                     left: `${positions["serial"].x}px`,
                     top: `${positions["serial"].y}px`,
-                    fontSize: "12px",
-                    color: "#000000",
-                    fontWeight: "normal",
-                    fontFamily: "Arial",
+                    fontSize: textStyles["serial"].fontSize,
+                    color: textStyles["serial"].color,
+                    fontWeight: textStyles["serial"].fontWeight,
+                    fontFamily: textStyles["serial"].fontFamily,
                   }}
                 >
                   {`${serialPrefix}${String(serialStart).padStart(
@@ -529,12 +569,31 @@ export default function Home() {
             </div>
             {/* Duplicated cards */}
             {renderCardDuplicates()}
-            <div className="mt-4 text-sm text-gray-600">
+            <div className="p-4 text-sm text-gray-600 help-text z-1">
               <p>* Drag and drop text elements to position them on your card</p>
               <p>* Use the print button to save or print your design</p>
             </div>
           </div>
           {/* </div> */}
+          <div className="mb-4 p-4 bg-gray-50 rounded shadow row-span-3 style-editor">
+            <h3 className="text-lg font-medium mb-2">Text Fields</h3>
+            {(Object.keys(cardText) as TextFieldName[]).map((field) => {
+              if (field === "serial") return;
+              return (
+                <TextFieldStyleEditor
+                  key={field}
+                  field={field}
+                  cardText={cardText}
+                  textStyles={textStyles}
+                  handleTextChange={handleTextChange}
+                  handleStyleChange={handleStyleChange}
+                  positions={positions}
+                  setPositions={setPositions}
+                  cardSize={cardSize}
+                />
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
